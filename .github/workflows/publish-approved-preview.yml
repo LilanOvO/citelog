@@ -1,0 +1,64 @@
+name: Publish approved v0.1.4 preview
+
+# One-off publishing branch for the already reviewed source commit.
+# This workflow is not installed on main and never follows future main changes.
+on:
+  push:
+    branches: [release/approved-v0.1.4]
+    paths: [.github/workflows/publish-approved-preview.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-approved-v0.1.4
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      RELEASE_COMMIT: 5f12cc16bf963413faf5140c2d8c9aad3b6ef402
+      RELEASE_TAG: v0.1.4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 5f12cc16bf963413faf5140c2d8c9aad3b6ef402
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify the reviewed version
+        run: |
+          test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json")).version, "0.1.4");'
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run check
+      - run: npm run package
+      - name: Publish the approved preview and verified assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'A release already exists. Refusing to replace it.' >&2
+            exit 1
+          fi
+          existing_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null || true)"
+          if [[ -n "$existing_commit" && "$existing_commit" != "$RELEASE_COMMIT" ]]; then
+            echo 'The tag points to a different commit.' >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" dist/citelog-chrome.zip dist/citelog-source.zip dist/SHA256SUMS.txt \
+            --draft --prerelease --target "$RELEASE_COMMIT" --title "CiteLog $RELEASE_TAG" \
+            --notes-file "docs/release-notes-$RELEASE_TAG.md"
+          gh release view "$RELEASE_TAG" --json assets --jq '[.assets[].name] | sort' > /tmp/citelog-assets.json
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.deepEqual(JSON.parse(fs.readFileSync("/tmp/citelog-assets.json")), ["SHA256SUMS.txt","citelog-chrome.zip","citelog-source.zip"]);'
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false
+          gh release view "$RELEASE_TAG" --json url,isDraft,isPrerelease,assets
