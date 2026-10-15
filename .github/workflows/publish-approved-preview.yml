@@ -50,7 +50,10 @@ jobs:
             echo 'A release already exists. Refusing to replace it.' >&2
             exit 1
           fi
-          existing_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null || true)"
+          existing_commit=""
+          if resolved_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null)"; then
+            existing_commit="$resolved_commit"
+          fi
           if [[ -n "$existing_commit" && "$existing_commit" != "$RELEASE_COMMIT" ]]; then
             echo 'The tag points to a different commit.' >&2
             exit 1
