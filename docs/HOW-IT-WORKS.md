@@ -8,7 +8,7 @@ CiteLog keeps snapshots in your Chrome profile and compares them over time. Prof
 
 After you bind a public profile, CiteLog reads its first page and saves the total citation count plus the papers visible there. The first successful snapshot is a **baseline**. Later snapshots produce total and per-paper differences.
 
-Checks default to once every 24 hours. Settings accept whole hours from 1 to 720. Manual and scheduled checks share a 15-minute minimum interval between attempts. A request times out after 20 seconds; failures preserve the previous records. Network errors back off, and verification pages, rate limits, or redirects pause automatic checking.
+Automatic checks default to once every 24 hours. Settings accept whole hours from 1 to 720. You can check manually at any time; if a check is already running, repeated requests share that check instead of starting another one. A request times out after 20 seconds; failures preserve the previous records. Network errors back off, and verification pages, rate limits, or redirects pause automatic checking.
 
 Chrome must be running. Sleep and browser scheduling can delay an alarm, so checks are not guaranteed to run at an exact time. Ordinary visits to the bound Scholar profile can also update its records.
 

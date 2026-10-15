@@ -18,15 +18,21 @@ const install = `CiteLog ${version} — Chrome installation / Chrome 安装
 Requires Chrome 116 or later. No Node.js or command line needed.
 需要 Chrome 116 或更新版本，无需安装 Node.js 或运行命令。
 
-1. Extract citelog-chrome.zip into a permanent folder named CiteLog.
-   解压 citelog-chrome.zip 到固定位置的 CiteLog 文件夹。
+1. Extract citelog-chrome.zip into a permanent folder named citelog-chrome.
+   解压 citelog-chrome.zip 到固定位置的 citelog-chrome 文件夹。
 2. Open chrome://extensions and turn on Developer mode (top right).
    打开 chrome://extensions，开启右上角的「开发者模式」。
-3. Choose Load unpacked and select the folder containing manifest.json.
-   点击「加载已解压的扩展程序」，选择直接包含 manifest.json 的文件夹。
+3. Choose Load unpacked and select the citelog-chrome folder.
+   点击「加载已解压的扩展程序」，选择 citelog-chrome 文件夹。
 4. Pin CiteLog from Chrome's puzzle-piece menu. Open it and paste your
    Google Scholar profile link to connect your profile.
    在 Chrome 的拼图菜单中固定 CiteLog，打开后粘贴 Scholar 个人主页链接。
+
+Folder layout / 文件夹结构：
+citelog-chrome/       ← select this folder / 选择这个文件夹
+  manifest.json
+  popup.html
+  …
 
 Keep this folder in place. To update, close the popup, replace the files in
 the SAME folder, click Reload at chrome://extensions, and refresh open

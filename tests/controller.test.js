@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createController, ALARM_NAME } from '../extension/lib/controller.js';
 import { createState, applyProfileSnapshot } from '../extension/lib/model.js';
-import { MIN_FETCH_GAP_MS } from '../extension/lib/policy.js';
 
 const start = Date.parse('2026-10-15T02:00:00Z');
 const popup = { id: 'test-extension', url: 'chrome-extension://test-extension/popup.html' };
@@ -53,15 +52,76 @@ test('binding fetches only the profile, establishes a baseline, and schedules th
   assert.equal(h.alarms.get(ALARM_NAME).scheduledTime, start + 86400000);
 });
 
-test('manual checks are throttled and do not notify again on an unchanged snapshot', async () => {
+test('a completed manual check can run again immediately without duplicate notifications', async () => {
   const h = harness(seeded(), { notificationError: true });
   await h.send({ type: 'CHECK_NOW' }); await h.settle();
   assert.equal(h.notifications.length, 1); assert.equal(h.db().latest.total, 11);
+  h.advance(1);
   const second = await h.send({ type: 'CHECK_NOW' });
-  assert.equal(second.error.code, 'COOLDOWN'); assert.equal(h.fetched.length, 1);
-  h.advance(MIN_FETCH_GAP_MS + 1); await h.send({ type: 'CHECK_NOW' }); await h.settle();
+  assert.equal(second.ok, true); await h.settle();
   assert.equal(h.fetched.length, 2); assert.equal(h.notifications.length, 1);
   assert.equal((await h.controller.getState()).summary.delta, 1);
+});
+
+test('a successful profile capture does not delay the next manual check', async () => {
+  const h = harness(seeded());
+  const url = profileUrl('Example123');
+  const sender = { id: popup.id, url, tab: { id: 3 }, frameId: 0 };
+  const captured = await h.controller.handleMessage({ type: 'PAGE_CAPTURE', url, html: '<html>visited profile</html>', documentLoadedAt: start }, sender);
+  assert.equal(captured.ok, true); assert.equal(captured.ignored, undefined);
+  assert.equal(h.db().latest.total, 11); assert.equal(h.fetched.length, 0);
+  h.advance(1);
+  const reply = await h.send({ type: 'CHECK_NOW' });
+  assert.equal(reply.ok, true); await h.settle();
+  assert.equal(h.fetched.length, 1); assert.equal(h.notifications.length, 1);
+});
+
+test('a failed request can be retried manually without waiting', async () => {
+  let attempts = 0;
+  const h = harness(seeded(), { fetch: async () => {
+    if (++attempts === 1) throw new Error('offline');
+    return new Response('<html>profile</html>', { headers: { 'content-type': 'text/html' } });
+  } });
+  await h.send({ type: 'CHECK_NOW' }); await h.settle();
+  assert.equal(h.db().status.error.code, 'NETWORK'); assert.equal(h.db().latest.total, 10);
+  const retry = await h.send({ type: 'CHECK_NOW' });
+  assert.equal(retry.ok, true); await h.settle();
+  assert.equal(h.fetched.length, 2); assert.equal(h.db().latest.total, 11);
+  assert.equal(h.db().status.phase, 'idle'); assert.equal(h.db().status.error, null);
+});
+
+test('a timed-out request can be retried manually as soon as it ends', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let attempts = 0;
+  const h = harness(seeded(), { fetch: async (_url, { signal }) => {
+    if (++attempts > 1) return new Response('<html>profile</html>', { headers: { 'content-type': 'text/html' } });
+    return new Promise((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })), { once: true });
+    });
+  } });
+  await h.send({ type: 'CHECK_NOW' });
+  h.advance(20000); t.mock.timers.tick(20000); await h.settle();
+  assert.equal(h.db().status.error.code, 'TIMEOUT'); assert.equal(h.db().latest.total, 10);
+  const retry = await h.send({ type: 'CHECK_NOW' });
+  assert.equal(retry.ok, true); await h.settle();
+  assert.equal(h.fetched.length, 2); assert.equal(h.db().latest.total, 11);
+  assert.equal(h.db().status.phase, 'idle');
+});
+
+test('repeated clicks during an active check share the single in-flight request', async () => {
+  let finishFetch;
+  const pending = new Promise(resolve => { finishFetch = resolve; });
+  const h = harness(seeded(), { fetch: () => pending });
+  try {
+    await h.send({ type: 'CHECK_NOW' });
+    const replies = await Promise.all(Array.from({ length: 3 }, () => h.send({ type: 'CHECK_NOW' })));
+    assert(replies.every(reply => reply.ok && reply.state.status.phase === 'checking'));
+    assert.equal(h.fetched.length, 1);
+  } finally {
+    finishFetch(new Response('<html>profile</html>', { headers: { 'content-type': 'text/html' } }));
+    await h.settle();
+  }
+  assert.equal(h.db().latest.total, 11); assert.equal(h.notifications.length, 1);
 });
 
 test('HTTP rate limiting pauses alarms and keeps the last successful snapshot', async () => {

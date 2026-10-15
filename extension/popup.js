@@ -69,7 +69,6 @@ function errorText(error) {
     BLOCKED: '请先打开 Scholar 完成验证。',
     RATE_LIMIT: 'Scholar 暂时限制访问，请稍后再试。',
     RATE_LIMITED: 'Scholar 暂时限制访问，请稍后再试。',
-    COOLDOWN: '检查间隔过短，请稍后再试。',
     NETWORK: '网络连接失败，已有记录已保留。',
     NO_PROFILE: '请先绑定 Scholar 主页。',
     SOURCE_UNAVAILABLE: '暂时没有可打开的引用来源页。'

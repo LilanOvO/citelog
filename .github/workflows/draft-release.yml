@@ -7,7 +7,7 @@ on:
       tag:
         description: Version tag; must equal v plus the current package version
         required: true
-        default: v0.1.4
+        default: v0.1.5
         type: string
       prerelease:
         description: Mark this release as a preview
@@ -87,7 +87,10 @@ jobs:
             echo 'A release with this tag already exists. Review it instead of replacing it.' >&2
             exit 1
           fi
-          existing_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null || true)"
+          existing_commit=""
+          if resolved_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null)"; then
+            existing_commit="$resolved_commit"
+          fi
           if [[ -n "$existing_commit" && "$existing_commit" != "$GITHUB_SHA" ]]; then
             echo 'This tag points to a different commit. Select the matching ref or a new version.' >&2
             exit 1

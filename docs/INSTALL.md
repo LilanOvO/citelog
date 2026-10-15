@@ -6,9 +6,16 @@ You need **desktop Chrome 116 or later**, access to `scholar.google.com`, and a 
 
 ## 1. Download and unzip
 
-[**Download citelog-chrome.zip — v0.1.4 preview**](https://github.com/LilanOvO/citelog/releases/download/v0.1.4/citelog-chrome.zip)
+[**Download citelog-chrome.zip — v0.1.5 preview**](https://github.com/LilanOvO/citelog/releases/download/v0.1.5/citelog-chrome.zip)
 
-Unzip it into a permanent folder, for example `Documents/citelog-chrome`. Keep this folder after installation: Chrome loads the extension directly from it.
+Unzip it into a permanent folder named **`citelog-chrome`**, for example `Documents/citelog-chrome`. On macOS, double-click the ZIP; on Windows, right-click it and choose **Extract All**. Keep this folder after installation.
+
+```text
+citelog-chrome/       ← select this folder in Chrome
+├── manifest.json
+├── popup.html
+└── …
+```
 
 Choose **citelog-chrome.zip**, rather than GitHub's automatically generated “Source code” downloads. The Chrome package is ready to load.
 
@@ -17,11 +24,11 @@ Choose **citelog-chrome.zip**, rather than GitHub's automatically generated “S
 1. Type `chrome://extensions` into Chrome's address bar.
 2. Turn on **Developer mode** in the upper-right corner.
 3. Click **Load unpacked**.
-4. Select the extracted **citelog-chrome** folder. You should find `manifest.json` directly inside it.
+4. Select the **`citelog-chrome` folder**.
 
-![Three steps: download and unzip, enable Developer mode, load the extracted folder](assets/install.svg)
+![Download and unzip, load the citelog-chrome folder, then bind your profile](assets/install.svg)
 
-If your unzip tool adds an extra outer folder, open it and select the inner folder containing `manifest.json`. Do not select the ZIP file itself.
+Select the folder, not `citelog-chrome.zip` or an individual file.
 
 ## 3. Bind your profile
 
@@ -36,6 +43,8 @@ https://scholar.google.com/citations?user=YOUR_PROFILE_ID
 The first successful check records your total and establishes a baseline. Subsequent checks can show changes; CiteLog cannot reconstruct history from before installation.
 
 Checks run every 24 hours by default. Open **设置** (Settings) to choose 1–720 hours or turn off desktop reminders. Chrome must be running; sleep and browser scheduling can delay checks.
+
+Use **立即检查** (Check now) whenever you want a manual update. If a check is already running, repeated requests share it. Automatic checks still follow your interval and pause when Scholar requests verification or restricts access.
 
 | In the popup | Meaning |
 |---|---|
@@ -62,10 +71,10 @@ If you used an earlier local trial package, your existing path may end with `sch
 
 | What you see | What to do |
 |---|---|
-| “Manifest file is missing or unreadable” | Select the folder that directly contains `manifest.json`. Unzip first. |
+| “Manifest file is missing or unreadable” | Unzip first and select **`citelog-chrome`**. If you downloaded the source instead, use the folder listed [below](#install-from-source). |
 | No CiteLog icon in the toolbar | Open Chrome's puzzle-piece menu and click the pin next to CiteLog. |
 | No citation changes after binding | The first check is a baseline. Changes appear after later successful observations. |
-| Check interval is too short | Wait at least 15 minutes after the previous check attempt. Manual checks use the same cooldown. |
+| Clicking Check now again does not start another request | Wait for the check already in progress to finish. Repeated requests share that check; there is no fixed waiting interval between completed manual checks. |
 | Scholar times out or asks for verification | Open your Scholar profile normally and follow any page prompt. Keep the extension's existing records and try again later. Installing CiteLog does not fix network access or remove Scholar limits. |
 | Sources are empty or marked incomplete | Open the relevant paper's Cited by list yourself. A first complete, unfiltered visit establishes a baseline; a later complete visit identifies new articles. |
 | Managed browser does not allow Developer mode | Ask your device administrator about their extension policy. There is no Web Store installation option yet. |
@@ -74,4 +83,11 @@ If an issue persists, [open an issue](https://github.com/LilanOvO/citelog/issues
 
 ## Install from source
 
-Download or clone the repository, then load its **`extension/`** directory using the steps above. No build is required to run the checked-in extension. Node.js is needed only for [development checks](../CONTRIBUTING.md).
+Source downloads use a different folder. After unzipping, click **Load unpacked** and select:
+
+| Download | Folder to select |
+|---|---|
+| GitHub **Code → Download ZIP** | **`extension` inside `citelog-main`** (`citelog-main/extension`) |
+| Release asset **`citelog-source.zip`** | **`extension` inside `citelog`** (`citelog/extension`) |
+
+If you cloned the repository, select its **`extension`** folder. No build is required. Node.js is needed only for [development checks](../CONTRIBUTING.md).

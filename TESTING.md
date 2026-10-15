@@ -1,6 +1,6 @@
 # Validation notes
 
-**Version:** 0.1.4 local preview  
+**Version:** 0.1.5 preview  
 **Recorded:** 2026-10-15
 
 This file separates automated checks and observed browser behavior from work that still needs real-world use.
@@ -15,7 +15,9 @@ npm run check
 
 The recorded 0.1.4 run passed **65 tests** and the package checks. Tests use synthetic HTML and mocked Chrome APIs; they do not generate live Scholar traffic.
 
-Coverage includes profile/source parsing, daily and missed-day accounting, incomplete profile coverage, source baselines, traversal expiry, duplicate sources, request throttling, restricted-access pause behavior, stale-tab protection, concurrent writes, and profile switching. Source-list workflows assert that no automatic source requests are made.
+That recorded run covered profile/source parsing, daily and missed-day accounting, incomplete profile coverage, source baselines, traversal expiry, duplicate sources, the then-current request throttling, restricted-access pause behavior, stale-tab protection, concurrent writes, and profile switching. Source-list workflows assert that no automatic source requests are made.
+
+The 0.1.5 local run passed **69 tests** and the package checks after removing the fixed waiting interval. Regression coverage includes immediate repeat checks, immediate checks after a visited-profile capture, retries after a network error or timeout, and sharing a single in-flight check. Automatic checks continue to follow the configured interval and pause for Scholar verification or access restrictions. These tests use mocks and do not make real Scholar requests.
 
 Package checks cover Manifest V3, resource paths, JavaScript syntax, and remote runtime-code restrictions.
 

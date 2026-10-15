@@ -1,5 +1,5 @@
 import { createState, normalizeProfileUrl, applyProfileSnapshot, applyCitationPage, getTodaySummary, getDailyHistory } from './model.js';
-import { MIN_FETCH_GAP_MS, MAX_HTML_BYTES, profileFetchUrl, trustedCapture, isPopupSender, safeSourceUrl, nextCheckTime, asUserError, toMillis } from './policy.js';
+import { MAX_HTML_BYTES, profileFetchUrl, trustedCapture, isPopupSender, safeSourceUrl, nextCheckTime, asUserError, toMillis } from './policy.js';
 
 // Keep existing identifiers so upgrades retain local history and scheduled checks.
 export const STORAGE_KEY = 'citepulse';
@@ -131,14 +131,6 @@ export function createController({ chromeApi, fetchFn = globalThis.fetch, now = 
       if (!state.settings.profileId) return { reply: { ok: false, error: asUserError(codedError('NO_PROFILE')) } };
       if (state.status.phase === 'checking' && activeFetch) return { reply: view(state) };
       if (automatic && state.status.phase === 'blocked') return { reply: view(state) };
-      if (state.status.lastAttemptAt && now() - toMillis(state.status.lastAttemptAt) < MIN_FETCH_GAP_MS) {
-        if (automatic) {
-          state.status.nextCheckAt = toMillis(state.status.lastAttemptAt) + MIN_FETCH_GAP_MS;
-          await publishState(state);
-          return { reply: view(state) };
-        }
-        return { reply: { ok: false, error: asUserError(codedError('COOLDOWN')) } };
-      }
       const at = now();
       const id = `${at}-${Math.random().toString(36).slice(2, 9)}`;
       state.status = { ...state.status, phase: 'checking', lastAttemptAt: at, error: null, runId: id, nextCheckAt: null };

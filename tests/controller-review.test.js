@@ -77,14 +77,14 @@ test('an old profile tab cannot roll back a successful background snapshot', asy
   const env = environment(async ({ html }) => html === 'network'
     ? { ...profile, total: 11, papers: [{ ...profile.papers[0], count: 11 }] }
     : JSON.parse(html), { fetch: async () => new Response('network', { headers: { 'content-type': 'text/html' } }) });
-  env.advance(16 * 60 * 1000);
+  env.tick();
   await env.controller.checkNow();
   for (let i = 0; i < 20 && env.state().status.phase === 'checking'; i++) {
     await new Promise(resolve => setImmediate(resolve));
     await env.controller.drain();
   }
   assert.equal(env.state().latest.total, 11);
-  assert.equal(env.state().status.lastNetworkSnapshotAt, baseTime + 16 * 60 * 1000);
+  assert.equal(env.state().status.lastNetworkSnapshotAt, baseTime + 1000);
   env.tick();
   const reply = await env.controller.handleMessage({ type: 'PAGE_CAPTURE', url: profileURL, html: 'old DOM after Show more', documentLoadedAt: baseTime }, sender(profileURL));
   assert.equal(reply.ignored, true);
@@ -92,7 +92,7 @@ test('an old profile tab cannot roll back a successful background snapshot', asy
   assert.equal(env.state().events.some(event => event.delta < 0), false);
   env.tick();
   const fresh = { ...profile, total: 12, papers: [{ ...profile.papers[0], count: 12 }] };
-  const newLoadedAt = baseTime + 16 * 60 * 1000 + 1500;
+  const newLoadedAt = baseTime + 2500;
   const accepted = await env.controller.handleMessage({ type: 'PAGE_CAPTURE', url: profileURL, html: JSON.stringify(fresh), documentLoadedAt: newLoadedAt }, sender(profileURL, 2));
   assert.equal(accepted.ok, true);
   assert.equal(accepted.ignored, undefined);

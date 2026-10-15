@@ -2,6 +2,12 @@
 
 CiteLog is currently an early preview. These versions describe local trial builds; they do not imply that each version was publicly released.
 
+## 0.1.5
+
+- Removed the fixed waiting interval for manual checks. Repeated requests during an active check share that check.
+- Kept automatic checks on the configured schedule and retained pause behavior for Scholar verification and access restrictions.
+- Simplified both READMEs with installation first and named the exact folders to select for Chrome and source downloads.
+
 ## 0.1.4
 
 - Renamed the product to **CiteLog** across the popup, toolbar, and notifications.

@@ -1,5 +1,4 @@
 export const ORIGIN = 'https://scholar.google.com';
-export const MIN_FETCH_GAP_MS = 15 * 60 * 1000;
 export const MAX_HTML_BYTES = 2 * 1024 * 1024;
 export const PROFILE_PAGE_SIZE = 100;
 
@@ -83,7 +82,6 @@ export function asUserError(error) {
     TIMEOUT: '连接超时，已保留上次记录。',
     TOO_LARGE: '页面过大，已保留上次记录。',
     STORAGE: '本地保存失败，原有记录仍保留。',
-    COOLDOWN: '刚刚已检查，请稍后再试。',
     INVALID_SETTINGS: '请检查主页地址与检查间隔。',
     INTERRUPTED: '上次检查被中断，将在下次检查时重试。',
     NO_PROFILE: '请先绑定 Scholar 主页。',
