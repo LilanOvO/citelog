@@ -1,0 +1,35 @@
+name: Bug report / 问题反馈
+description: Something is not working as expected / 功能没有按预期运行
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve CiteLog. Please remove personal profile links, paper titles, and other private details from screenshots or logs before posting.
+        感谢帮助改进 CiteLog。发布截图或日志前，请遮去个人主页链接、论文标题等不想公开的信息。
+  - type: input
+    id: version
+    attributes:
+      label: CiteLog version / 插件版本
+      placeholder: "0.1.4 (shown at chrome://extensions)"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Chrome version and operating system / Chrome 版本与操作系统
+      placeholder: "Chrome 130, Windows 11 / macOS / Linux"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What happened? / 发生了什么？
+      description: Include the steps to reproduce, what you expected, and what you saw instead. / 描述操作步骤、预期结果和实际情况。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshot or error message / 截图或报错
+      description: Optional; no profile URL or browsing history is needed. / 选填，无需提供个人主页链接或浏览记录。

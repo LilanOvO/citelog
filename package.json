@@ -1,0 +1,22 @@
+{
+  "name": "citelog",
+  "version": "0.1.4",
+  "private": true,
+  "type": "module",
+  "description": "Local-first Google Scholar citation tracking for Chrome.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check-package.js",
+    "package": "node scripts/package.js && node scripts/check-release.js",
+    "check:release": "node scripts/check-release.js",
+    "vendor": "node scripts/vendor-parser.js"
+  },
+  "devDependencies": {
+    "linkedom": "0.18.12",
+    "htmlparser2": "10.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

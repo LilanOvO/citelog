@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="CiteLog smiling book">
+<rect x="3" y="3" width="122" height="122" rx="28" fill="#eaf4fe"/>
+<rect x="25" y="18" width="79" height="93" rx="13" fill="#729ed0"/>
+<rect x="32" y="20" width="70" height="81" rx="10" fill="#a4d1fa"/>
+<rect x="33" y="97" width="69" height="10" rx="4" fill="#fffdf6"/>
+<path d="M80 19h10v19q0 2-2 2h-6q-2 0-2-2z" fill="#fffdf6"/>
+<rect x="47" y="55" width="6" height="9" rx="3" fill="#38648f"/>
+<rect x="76" y="55" width="6" height="9" rx="3" fill="#38648f"/>
+<ellipse cx="43.5" cy="71" rx="6.5" ry="3" fill="#f0b9b7"/>
+<ellipse cx="86.5" cy="71" rx="6.5" ry="3" fill="#f0b9b7"/>
+<path d="M60 70v3a5 5 0 0 0 10 0v-3" fill="none" stroke="#38648f" stroke-width="3"/>
+</svg>

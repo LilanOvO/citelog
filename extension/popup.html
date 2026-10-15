@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>CiteLog</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" type="module"></script>
+</head>
+<body>
+  <article class="window" aria-label="CiteLog">
+    <header class="header">
+      <h1 class="brand">CiteLog</h1>
+      <button class="text-button settings-button" id="open-settings" type="button" hidden>设置</button>
+    </header>
+
+    <div class="content" id="content">
+      <section class="loading" id="loading" role="status">正在读取…</section>
+
+      <section class="pane welcome" id="welcome" hidden aria-labelledby="welcome-title">
+        <div class="friend welcome-friend" aria-hidden="true">
+          <span class="book-shadow"></span><span class="arm"></span><span class="arm arm-right"></span><span class="foot"></span><span class="foot foot-right"></span>
+          <div class="book"><span class="eye"></span><span class="eye eye-right"></span><span class="cheek"></span><span class="cheek cheek-right"></span><span class="smile"></span></div><span class="spark">✦</span>
+        </div>
+        <h2 class="heading" id="welcome-title">你的引用，一眼看清</h2>
+        <p class="welcome-caption">绑定 Scholar 主页，开始记录。</p>
+        <form id="bind-form">
+          <label class="field-label" for="bind-url">Scholar 主页</label>
+          <input class="input" id="bind-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://scholar.google.com/citations?user=…" required>
+          <p class="form-error" id="bind-error" role="alert" hidden></p>
+          <button class="action full-width" id="bind-button" type="submit">绑定主页</button>
+        </form>
+      </section>
+
+      <section id="main" hidden>
+        <div class="profile-row">
+          <button class="text-button profile-button" id="open-profile" type="button">我的 Scholar ↗</button>
+          <span class="status" id="status"></span>
+        </div>
+        <div class="notice" id="notice" hidden>
+          <span id="notice-text"></span>
+          <button class="text-button" id="verify" type="button" hidden>打开 Scholar 验证 ↗</button>
+        </div>
+        <div class="hero">
+          <div>
+            <div class="label">总引用</div>
+            <strong class="number" id="total">—</strong>
+            <div class="today"><span id="delta-label">今日净增</span><strong class="delta" id="delta">—</strong></div>
+          </div>
+          <div class="friend" aria-hidden="true">
+            <span class="book-shadow"></span><span class="arm"></span><span class="arm arm-right"></span><span class="foot"></span><span class="foot foot-right"></span>
+            <div class="book"><span class="eye"></span><span class="eye eye-right"></span><span class="cheek"></span><span class="cheek cheek-right"></span><span class="smile"></span></div><span class="spark">✦</span>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="引用记录">
+          <button class="tab" type="button" data-tab="papers" aria-pressed="true">论文<span class="count" id="change-count" hidden></span></button>
+          <button class="tab" type="button" data-tab="history" aria-pressed="false">每日记录</button>
+          <span class="date" id="today-date"></span>
+        </nav>
+        <section id="papers-panel" aria-label="论文引用变化">
+          <div class="list" id="paper-list"></div>
+          <div class="empty" id="paper-empty" hidden><strong id="empty-title"></strong><p id="empty-text"></p></div>
+          <p class="coverage-note" id="coverage-note" hidden>部分论文未检查</p>
+        </section>
+        <section class="pane" id="history-panel" aria-label="每日引用记录" hidden>
+          <table class="history" id="history-table"><thead><tr><th scope="col">日期</th><th scope="col">总引用</th><th scope="col">净增</th></tr></thead><tbody id="history-body"></tbody></table>
+          <p class="empty compact-empty" id="history-empty" hidden>还没有记录</p>
+        </section>
+      </section>
+
+      <section class="pane" id="detail" hidden>
+        <button class="text-button back" id="detail-back" type="button">← 返回</button>
+        <h2 class="heading detail-title" id="detail-title" tabindex="-1"></h2>
+        <div class="detail-stats"><span id="detail-count"></span><span class="gain" id="detail-gain" hidden></span></div>
+        <div id="new-source-section" hidden><h3 class="section-label">新发现的引用</h3><div id="new-source-list"></div></div>
+        <div id="known-source-section" hidden><h3 class="section-label">已记录的引用</h3><div id="known-source-list"></div></div>
+        <p class="pending" id="source-status">打开来源页后记录引用文章。</p>
+        <p class="note" id="source-updated" hidden></p>
+      </section>
+
+      <section class="pane" id="settings" hidden aria-labelledby="settings-title">
+        <button class="text-button back" id="settings-back" type="button">← 返回</button>
+        <h2 class="heading" id="settings-title">设置</h2>
+        <form id="settings-form">
+          <label class="field-label" for="profile-url">Scholar 主页</label>
+          <input class="input" id="profile-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" required>
+          <label class="field-label" for="interval">检查间隔</label>
+          <select class="input" id="interval"><option value="24">每天一次</option><option value="12">每 12 小时</option><option value="6">每 6 小时</option><option value="custom">自定义</option></select>
+          <div id="custom-interval" hidden><label class="field-label" for="hours">间隔时长</label><div class="input-row"><input class="input" id="hours" type="number" min="1" max="720" step="1" value="24"><span>小时</span></div></div>
+          <label class="check" for="notifications"><span>桌面提醒</span><input id="notifications" type="checkbox"></label>
+          <p class="note">浏览器关闭时暂停检查。</p>
+          <p class="form-error" id="settings-error" role="alert" hidden></p>
+        </form>
+      </section>
+    </div>
+
+    <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+    <footer class="footer" id="footer" hidden>
+      <span class="schedule" id="schedule"></span>
+      <button class="action" id="check-now" type="button">立即检查</button>
+      <button class="action full-width" id="open-sources" type="button" hidden>打开来源页 ↗</button>
+      <button class="action full-width" id="save-settings" type="submit" form="settings-form" hidden>保存</button>
+    </footer>
+  </article>
+</body>
+</html>

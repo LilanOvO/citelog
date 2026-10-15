@@ -1,0 +1,104 @@
+name: Prepare draft release
+
+# Only a maintainer's manual action creates a draft. Tags and pushes never publish.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag; must equal v plus the current package version
+        required: true
+        default: v0.1.4
+        type: string
+      prerelease:
+        description: Mark this release as a preview
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: draft-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Verify release files
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check requested version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            assert(/^\d+\.\d+\.\d+$/.test(version), "Expected a three-part release version");
+            assert.equal(process.env.RELEASE_TAG, `v${version}`, "Tag must match package.json");
+          '
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run check
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: citelog-release
+          path: |
+            dist/citelog-chrome.zip
+            dist/citelog-source.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  draft:
+    name: Create unpublished draft
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: citelog-release
+          path: dist
+      - name: Create draft for review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'A release with this tag already exists. Review it instead of replacing it.' >&2
+            exit 1
+          fi
+          existing_commit="$(gh api "repos/$GH_REPO/commits/$RELEASE_TAG" --jq .sha 2>/dev/null || true)"
+          if [[ -n "$existing_commit" && "$existing_commit" != "$GITHUB_SHA" ]]; then
+            echo 'This tag points to a different commit. Select the matching ref or a new version.' >&2
+            exit 1
+          fi
+          args=(--draft --target "$GITHUB_SHA" --title "CiteLog $RELEASE_TAG")
+          if [[ "$IS_PRERELEASE" == 'true' ]]; then args+=(--prerelease); fi
+          notes="docs/release-notes-$RELEASE_TAG.md"
+          if [[ -f "$notes" ]]; then
+            args+=(--notes-file "$notes")
+          else
+            args+=(--generate-notes)
+          fi
+          gh release create "$RELEASE_TAG" dist/citelog-chrome.zip dist/citelog-source.zip dist/SHA256SUMS.txt "${args[@]}"
+          echo 'Draft created. Review it in Releases, then publish manually when ready.'

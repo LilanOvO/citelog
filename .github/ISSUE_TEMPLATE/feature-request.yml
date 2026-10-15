@@ -1,0 +1,18 @@
+name: Feature idea / 功能建议
+description: Share a problem CiteLog could solve / 分享你希望解决的问题
+title: "[Idea] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What would this help you do? / 想解决什么问题？
+      description: A short real-world example helps. / 可以用一个实际场景说明。
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea / 你的建议
+      description: How could this stay simple in a small popup? / 希望在小弹窗中如何简洁地实现？
+    validations:
+      required: true

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Installation guide / 安装说明
+    url: https://github.com/LilanOvO/citelog/blob/main/docs/INSTALL.md
+    about: Download, install, and update CiteLog / 下载、安装与更新
