@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/hero.jpg" alt="CiteLog — 在 Chrome 弹窗中查看 Google Scholar 引用变化" width="960">
+  <img src="docs/assets/hero.png" alt="CiteLog — 在 Chrome 弹窗中查看 3 篇论文新增的 6 次引用" width="960">
 </p>
 
 ## 安装

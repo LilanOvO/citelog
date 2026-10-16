@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/hero.jpg" alt="CiteLog — Google Scholar citation changes in one Chrome popup" width="960">
+  <img src="docs/assets/hero.png" alt="CiteLog — 6 new citations across 3 papers in one Chrome popup" width="960">
 </p>
 
 ## Install
